@@ -1,0 +1,217 @@
+* want to do
+** less
+コマンドラインから emacs (emacsclient) を read-only で開く - Qiita
+http://qiita.com/k_ui/items/609681b9635e5563d4a9
+
+* ref
+シェルスクリプト入門 書き方のまとめ | Memo on the Web
+http://motw.mods.jp/shellscript/tutorial.html
+
+UNIX & Linux コマンド・シェルスクリプト リファレンス
+http://shellscript.sunone.me/
+
+Amazon.co.jp： 入門UNIXシェルプログラミング―シェルの基礎から学ぶUNIXの世界: ブルース ブリン, Bruce Blinn, 山下 哲典: 本
+http://www.amazon.co.jp/%E5%85%A5%E9%96%80UNIX%E3%82%B7%E3%82%A7%E3%83%AB%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E2%80%95%E3%82%B7%E3%82%A7%E3%83%AB%E3%81%AE%E5%9F%BA%E7%A4%8E%E3%81%8B%E3%82%89%E5%AD%A6%E3%81%B6UNIX%E3%81%AE%E4%B8%96%E7%95%8C-%E3%83%96%E3%83%AB%E3%83%BC%E3%82%B9-%E3%83%96%E3%83%AA%E3%83%B3/dp/4797321946
+Amazon.co.jp： 詳解 シェルスクリプト: Arnold Robbins, Nelson H. F. Beebe, 日向 あおい: 本
+http://www.amazon.co.jp/%E8%A9%B3%E8%A7%A3-%E3%82%B7%E3%82%A7%E3%83%AB%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88-Arnold-Robbins/dp/4873112672/ref=pd_sim_b_13
+
+「スマートな紳士のためのシェルスクリプト」最新記事一覧 - ITmedia Keywords
+http://www.atmarkit.co.jp/ait/kw/smart_shell.html
+
+* 基本
+コメント
+# comment
+
+複数行コメント
+<<COMMENT
+echo "Hello world!"
+echo "Hello world!"
+echo "Hello world!"
+COMMENT
+# COMMENT 部は任意の文字列でOK
+
+* コマンドの接続
+改行したい
+  command1 |\
+  command2
+
+逐次実行
+  command1; command2
+バックグラウンドで実行
+  command &
+条件付実行
+  command1が0を返せば(正常に終了すれば)command2を実行)
+    command1 && command2 
+  command1が0以外を返せば(異常終了すれば)command2を実行)
+    command1 || command2
+パイプ command1の標準出力をcommand2に渡す
+  command1 | command2
+
+* 変数
+代入
+  test='hoge' # 繋げて書く
+利用
+  echo $test
+  echo ${test} # ${}で内部の変数名を展開?
+
+  echo test # test という文字列と見なされる
+  echo "abc $hoge de" # ダブルクォート内は展開される
+  echo 'abc $hoge de' # シングルクォート内は $hoge という文字列の扱い
+
+値は文字列として扱われる
+  test=1 # '1'
+
+値を数値として宣言
+  declare -i test
+  test=1 # 1
+
+* 特別な変数
+http://motw.mods.jp/shellscript/tutorial.html#special_var
+$0 実行ファイル名 (相対path付き?)
+$1〜 コマンドライン引数
+$* すべてのコマンドライン引数が入った配列 (そのまま echo されるとスペースで繋がる?)
+
+* 文字列
+リテラル
+  'string'
+  "string"
+
+真偽
+  '' 偽
+  他 真
+
+連結
+  "baa${hoge}foo" # とか
+
+** 置換
+${var/old/new}
+${var//old/new} # global match
+
+** 削除 (…したものを返す varの中身は変更せず)
+${var#pattern}  前方から最短マッチ
+${var##pattern} 前方から最長マッチ
+${var%pattern}  後方から最短マッチ
+${var%%pattern} 後方から最長マッチ
+
+basename
+dirname
+
+http://www.kishiro.com/FreeBSD/get_filename_in_shellscript.html
+http://d.hatena.ne.jp/zariganitosh/20100921/get_file_name_ext_dir
+filename=${test_path##*/} # filename test_path
+filename_without_extension=${string_filename%.*} # filename test_path .extension
+path=${test_path%/*} # dirname test_path
+extension=${test_path##*.}
+
+* 数値
+変数を数値として計算
+  $(( 計算式 ))
+  計算式内では $ を付けずに変数が展開される
+
+  x=1
+  y=2
+  echo $(( x + y ))
+
+$((  )) 内で使える各種演算子あり (比較も可 結果は _0:偽 1:真 で返る_)
+
+* globbing
+http://linuxjm.sourceforge.jp/html/LDP_man-pages/man7/glob.7.html
+/* 任意の文字列 空文字列にもマッチ
+/? 任意の1文字
+/[...] いずれかにマッチ
+/[!...] 補集合
+/[0-9a-z]
+
+* リスト生成
+$*
+
+シェルによるファイル・ディレクトリ名のグロッビング
+http://x68000.q-e-d.net/~68user/unix/pickup?%A5%D5%A5%A1%A5%A4%A5%EB%A5%B0%A5%ED%A5%D6
+*.test
+
+並べる
+for fruit in apple orange banana
+
+数値
+{1..10}
+
+コマンドの標準出力を使う $(command)
+for file in $(ls)
+do
+echo $file
+done
+
+* 制御構造
+http://www.k4.dion.ne.jp/~mms/unix/shellscript/shell_cont.html
+
+** if
+if 条件文
+then
+  ~
+elif 条件文
+  ~
+else
+  ~
+fi
+
+条件文
+- ×条件式
+- 実際に文を実行し、終了ステータスが0なら真
+
+** until
+
+** 条件文
+test 条件式
+- 条件式が真なら0、偽なら1を返す
+test ! 条件式
+
+syntax sugar
+[ 条件式 ] # 両側にスペース!!
+[ ! 条件式 ]
+
+** 条件式
+文字列
+  s1 = s2
+  s1 != s2
+  -z s # 長さが0
+
+数値
+  n1 -eq n2
+  n1 -ne n2
+
+ファイル
+  -f file # file はファイルである
+  -d directory # directory はディレクトリである
+  -e file # ファイルが存在
+
+** if 2
+
+** if 3
+[ 条件式 ] && command # if
+[ 条件式 ] || command # unless
+[ 条件式 ] && command || command # if then else
+
+** switch
+
+** for
+for (( i = 0 ; i < 10 ; i++ ))
+do
+echo " $i 回目のループです."
+done
+
+** for in
+for identifer in list
+do
+  do something with $identifer
+done
+
+
+** while
+*** Cのfor的な使い方
+i=0
+while [ $i -ne 1001 ]
+do
+    ./svm 10 2 $i < ../data/sample_circle.dat
+    i=`expr $i + 1`
+done
+
